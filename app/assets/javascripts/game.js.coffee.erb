@@ -1,0 +1,27 @@
+$ ->
+  name = prompt("What is your name?")
+  $("#name").text(name)
+  $("#message").focus()
+
+  #websocket stuff
+  url = "ws://<%="#{$em_config[:host]}:#{$em_config[:port]}"%>"
+  ws = new WebSocket(url)
+  ws.open
+
+  $("#message_form").submit (event) ->
+    message = $("#message")
+    ws.send(JSON.stringify({id: name, action: "say", data : message.val()}))
+    message.val('')
+    message.focus()
+    event.preventDefault()
+
+   ws.onopen = ->
+    ws.send(JSON.stringify({id: name, action: "connect"}))
+
+  ws.onmessage = (message) ->
+    $("#chat_window").append(message.data + "<br/>")
+    $(window).scrollTop($(document).height())
+
+  ws.onclose = ->
+    #onclose not firing for some reason
+
